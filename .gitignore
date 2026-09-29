@@ -1,0 +1,11 @@
+# Build output
+build/
+maze_solver
+*.o
+*.exe
+
+# Editor / OS files
+.vscode/
+.idea/
+*.swp
+.DS_Store
