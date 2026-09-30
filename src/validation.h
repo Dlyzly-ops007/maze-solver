@@ -27,4 +27,7 @@ int input_parse_direction(const char *line, Direction *dir);
 /* Returns 1 if the line is Q/q. */
 int input_is_quit(const char *line);
 
+/* Returns 1 if the line is Y/y/yes (any case). */
+int input_is_yes(const char *line);
+
 #endif

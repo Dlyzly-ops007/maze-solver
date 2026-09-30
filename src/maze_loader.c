@@ -24,7 +24,7 @@ static int parse_maze_stream(FILE *fp, Maze *maze, char *err, size_t err_size)
         if (len > 0 && line[len - 1] == '\n') {
             line[--len] = '\0';
         } else if (!feof(fp)) {
-            snprintf(err, err_size, "line %d is too long", line_no);
+            snprintf(err, err_size, "line %d is too long (or contains a NUL character)", line_no);
             return 0;
         }
         if (len > 0 && line[len - 1] == '\r') {
@@ -102,4 +102,37 @@ int maze_load_from_file(const char *path, Maze *maze, char *err, size_t err_size
     int ok = parse_maze_stream(fp, maze, err, err_size);
     fclose(fp);
     return ok;
+}
+
+SaveStatus maze_save_to_file(const char *path, const Maze *maze,
+                             const Position *solution, int count, int overwrite,
+                             char *err, size_t err_size)
+{
+    PathMarks marks;
+    maze_mark_path(maze, solution, count, marks);
+
+    /* "wx" (C11) fails if the file exists, so nothing is overwritten by accident. */
+    FILE *fp = fopen(path, overwrite ? "w" : "wx");
+    if (fp == NULL) {
+        if (!overwrite && errno == EEXIST) {
+            snprintf(err, err_size, "'%s' already exists", path);
+            return SAVE_EXISTS;
+        }
+        snprintf(err, err_size, "cannot write '%s': %s", path, strerror(errno));
+        return SAVE_ERROR;
+    }
+
+    for (int r = 0; r < maze->rows; r++) {
+        for (int c = 0; c < maze->cols; c++) {
+            fputc(maze_symbol_at(maze, r, c, marks), fp);
+        }
+        fputc('\n', fp);
+    }
+
+    int write_failed = ferror(fp);
+    if (fclose(fp) != 0 || write_failed) {
+        snprintf(err, err_size, "error while writing '%s'", path);
+        return SAVE_ERROR;
+    }
+    return SAVE_OK;
 }

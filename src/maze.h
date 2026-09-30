@@ -11,6 +11,7 @@
 #define CHAR_START  'S'
 #define CHAR_EXIT   'E'
 #define CHAR_PLAYER 'P'
+#define CHAR_PATH   '*'   /* solution marker; loaded as an open cell */
 
 typedef enum {
     CELL_WALL,
@@ -36,11 +37,26 @@ void maze_init(Maze *maze);
 int maze_in_bounds(const Maze *maze, int row, int col);
 CellType maze_cell_at(const Maze *maze, int row, int col);
 
-/* Returns 1 and sets *out if c is a valid maze character, otherwise 0. */
+/* Returns 1 and sets *out if c is a valid maze character, otherwise 0.
+ * '*' (solution marker from a saved solution) is accepted as an open cell. */
 int maze_cell_from_char(char c, CellType *out);
 char maze_char_from_cell(CellType cell);
 
 /* Prints the maze. If player_pos is not NULL, 'P' is drawn at that cell. */
 void maze_display(const Maze *maze, const Position *player_pos);
+
+/* Solution overlay. The maze itself is never modified: a separate mark grid
+ * records which cells lie on the path. */
+typedef unsigned char PathMarks[MAZE_MAX_ROWS][MAZE_MAX_COLS];
+
+/* Clears marks and sets every in-bounds cell listed in cells[0..count-1]. */
+void maze_mark_path(const Maze *maze, const Position *cells, int count, PathMarks marks);
+
+/* Character for one cell: '*' for marked open cells, otherwise the normal
+ * symbol (so S and E stay visible). marks may be NULL. */
+char maze_symbol_at(const Maze *maze, int row, int col, PathMarks marks);
+
+/* Prints the maze with the solution drawn as '*'. */
+void maze_display_path(const Maze *maze, const Position *cells, int count);
 
 #endif

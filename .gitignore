@@ -9,3 +9,7 @@ maze_solver
 .idea/
 *.swp
 .DS_Store
+
+# Saved solutions written by the program
+mazes/*_solved.txt
+solved_maze.txt

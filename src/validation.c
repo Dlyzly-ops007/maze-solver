@@ -113,3 +113,14 @@ int input_is_quit(const char *line)
 {
     return strlen(line) == 1 && tolower((unsigned char)line[0]) == 'q';
 }
+
+int input_is_yes(const char *line)
+{
+    if (strlen(line) == 1) {
+        return tolower((unsigned char)line[0]) == 'y';
+    }
+    return strlen(line) == 3 &&
+           tolower((unsigned char)line[0]) == 'y' &&
+           tolower((unsigned char)line[1]) == 'e' &&
+           tolower((unsigned char)line[2]) == 's';
+}
